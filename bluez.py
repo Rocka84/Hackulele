@@ -284,26 +284,33 @@ class BlueZDbus(object):
 bluez_helper = BlueZDbus()
 bluez_helper.SetUp()
 
-# Find the Populele
-populele = BlueZPopulele(bluez_helper.SearchDeviceWithUUID(DIALOG_UUID))
-populele.Setup()
-
 # Set animation
-animation = scroll.ScrollAnimator(populele)
-animation.SetText('AWOO')
+# animation = scroll.ScrollAnimator(populele)
+# animation.SetText('POPULELE')
+# animation = pong.PongAnimator(populele)
+animation = k2000.K2000Animator(populele)
 
 while True:
-  #populele.DebugFrame()
-  animation.Draw()
-  populele.ShowFrame()
-  ival = animation.interval
-  while ival > 0:
-    # We still have time to do work
+    try:
+        # Find the Populele
+        populele = BlueZPopulele(bluez_helper.SearchDeviceWithUUID(DIALOG_UUID))
+        populele.Setup()
 
-    # Run the animation timing
-    if ival > 20:
-      time.sleep(0.02)
-      ival -= 20
-    else:
-      time.sleep(ival/1000)
-      ival = 0
+        while True:
+            #populele.DebugFrame()
+            animation.Draw()
+            populele.ShowFrame()
+            ival = animation.interval
+            while ival > 0:
+                # We still have time to do work
+
+                # Run the animation timing
+                if ival > 20:
+                    time.sleep(0.02)
+                    ival -= 20
+                else:
+                    time.sleep(ival/1000)
+                    ival = 0
+    except:
+            time.sleep(1)
+
