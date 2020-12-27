@@ -11,6 +11,7 @@ from populele import Populele
 #pylint: disable=unused-import
 from animations import k2000
 from animations import pong
+from animations import song
 from animations import scroll
 #pylint: enable=unused-import
 
@@ -280,22 +281,33 @@ class BlueZDbus(object):
       time.sleep(0.2)
 
 
-# Set up bluetooth adapter
-bluez_helper = BlueZDbus()
-bluez_helper.SetUp()
+connected = False
+while not connected:
+    try:
+        # Set up bluetooth adapter
+        bluez_helper = BlueZDbus()
+        bluez_helper.SetUp()
+        connected = True
+    except:
+        print("retry")
+        time.sleep(0.5)
 
-# Set animation
-# animation = scroll.ScrollAnimator(populele)
-# animation.SetText('POPULELE')
-# animation = pong.PongAnimator(populele)
-animation = k2000.K2000Animator(populele)
+retry = True
 
-while True:
+while retry:
     try:
         # Find the Populele
         populele = BlueZPopulele(bluez_helper.SearchDeviceWithUUID(DIALOG_UUID))
         populele.Setup()
 
+        # Set animation
+        # animation = scroll.ScrollAnimator(populele)
+        # animation.SetText('POPULELE')
+        # animation = pong.PongAnimator(populele)
+        # animation = k2000.K2000Animator(populele)
+        animation = song.SongAnimator(populele)
+
+        print("Starting animation")
         while True:
             #populele.DebugFrame()
             animation.Draw()
@@ -311,6 +323,17 @@ while True:
                 else:
                     time.sleep(ival/1000)
                     ival = 0
+    # except NameError:
+    #     print(inst.args)
+    #     pass
+    # except gi.repository.GLib.Error:
+    #     pass
+    except Exception as inst:
+        retry = False
+        print(type(inst))
+        print(inst.args)
     except:
-            time.sleep(1)
+        retry = False
+    # except:
+    #         time.sleep(1)
 
