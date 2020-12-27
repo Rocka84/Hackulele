@@ -1,5 +1,5 @@
 
-class SongAnimator():
+class Player():
   """Animator for a Song."""
 
   def __init__(self, populele, song = None):
