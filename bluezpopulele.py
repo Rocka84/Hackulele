@@ -13,7 +13,7 @@ class BlueZPopulele(Populele):
   # There may be some other way to be more precise when identifying the Populele
   DIALOG_UUID = '0000fef5-0000-1000-8000-00805f9b34fb'
 
-  def __init__(self, dbus):
+  def __init__(self):
     """Instantiate a BlueZPopulele object.
 
     Args:
@@ -21,10 +21,9 @@ class BlueZPopulele(Populele):
         for the Populele
     """
     super(BlueZPopulele, self).__init__()
-    self.dbus = dbus
+    self.dbus = SystemBus()
     self._write_service = None
     self._device = None
-    self._connected = False
     self._setup_done = False
     self._state = [
         bytearray([0x00, 0x00, 0x00]),
@@ -34,7 +33,9 @@ class BlueZPopulele(Populele):
         ]
 
   def isConnected(self):
-      return self._connected
+      if self._device is None:
+          return False
+      return self._device.Connected
 
   def isSetupDone(self):
       return self._setup_done
@@ -54,6 +55,10 @@ class BlueZPopulele(Populele):
           'is not a Populele')
     self.ShowFrame()
     self._setup_done = True
+
+  def Disconnect(self):
+    if self._device is not None:
+      self._device.Disconnect()
 
   def GetPixel(self, x, y):
     """Get the state of one pixel.
@@ -89,7 +94,6 @@ class BlueZPopulele(Populele):
       self._device.Connect()
       time.sleep(0.2)
     print('connected!')
-    self._connected = True
 
     while not self._device.ServicesResolved:
       print('Waiting for services to be resolved')
@@ -269,15 +273,20 @@ class BlueZDbus(object):
     Returns:
       DBus: a DBus device.
     """
+    try_max = 4
+    cnt = 0
     self.adapter.StartDiscovery()
-    try:
-      while True:
-        for known_device in self.GetKnownDevices():
-          if uuid in known_device.UUIDs:
-            return known_device
-        time.sleep(0.5)
-        print('Searching for Populele')
-    finally:
-      self.adapter.StopDiscovery()
-      time.sleep(0.2)
+    while cnt < try_max:
+      cnt += 1
+      print('Searching for Populele')
+      for known_device in self.GetKnownDevices():
+        if uuid in known_device.UUIDs:
+          self.adapter.StopDiscovery()
+          return known_device
+      time.sleep(0.5)
+    self.adapter.StopDiscovery()
+
+    if cnt >= try_max:
+      raise Exception("Populele not found")
+
 
