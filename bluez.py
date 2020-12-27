@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import time
+import buttonshim
 
 from pydbus import SystemBus, Variant
 
@@ -283,6 +284,7 @@ class BlueZDbus(object):
 
 connected = False
 while not connected:
+    buttonshim.set_pixel(0x00, 0x00, 0x66)
     try:
         # Set up bluetooth adapter
         bluez_helper = BlueZDbus()
@@ -290,15 +292,24 @@ while not connected:
         connected = True
     except:
         print("retry")
+        buttonshim.set_pixel(0x00, 0x00, 0x00)
         time.sleep(0.5)
 
+@buttonshim.on_press(buttonshim.BUTTON_A)
+def button_a(button, pressed):
+    global run
+    run = False
+
+run = True
 retry = True
 
-while retry:
+while run and retry:
     try:
         # Find the Populele
         populele = BlueZPopulele(bluez_helper.SearchDeviceWithUUID(DIALOG_UUID))
         populele.Setup()
+
+        buttonshim.set_pixel(0x00, 0x66, 0x00)
 
         # Set animation
         # animation = scroll.ScrollAnimator(populele)
@@ -308,7 +319,7 @@ while retry:
         animation = song.SongAnimator(populele)
 
         print("Starting animation")
-        while True:
+        while run:
             #populele.DebugFrame()
             animation.Draw()
             populele.ShowFrame()
@@ -336,4 +347,7 @@ while retry:
         retry = False
     # except:
     #         time.sleep(1)
+    finally:
+        buttonshim.set_pixel(0x00, 0x00, 0x00)
+
 
