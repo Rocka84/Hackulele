@@ -5,6 +5,8 @@ import buttonshim
 
 from bluezpopulele import BlueZPopulele
 from player import Player
+from song.examples.allessoeinfach import AllesSoEinfach
+from song.examples.rnruebermensch import RnRUebermensch
 
 class PlayerController():
     def __init__(self):
@@ -14,6 +16,7 @@ class PlayerController():
         self.led_beat = False
         self.populele = None
         self.player = None
+        self.song = None
 
     def beatLED(self, value = None):
         if value is not None:
@@ -70,7 +73,11 @@ class PlayerController():
         if not self.active:
             return
 
-        self.player = Player(self.populele)
+        if self.player is None:
+            self.player = Player(self.populele, self.song)
+        else:
+            self.player.setPopulele(populele)
+
         buttonshim.set_pixel(0x00, 0x66, 0x00)
         self.setPaused(True)
         self.player.draw()
@@ -97,6 +104,10 @@ class PlayerController():
             self.beatLED()
             time.sleep(self.player.interval)
 
+    def setSong(self, song):
+        self.song = song
+        if self.player is not None:
+            self.player.setSong(self.song)
 
     def nextChord(self):
         self.player.nextChord()
@@ -119,6 +130,7 @@ class PlayerController():
 
 
 controller = PlayerController()
+controller.setSong(RnRUebermensch())
 
 @buttonshim.on_press(buttonshim.BUTTON_A)
 def button_a(button, pressed):
