@@ -1,12 +1,19 @@
 from __future__ import print_function
 import time
 import sys
+import signal
 import buttonshim
 
 from bluezpopulele import BlueZPopulele
 from player import Player
 from song.examples.allessoeinfach import AllesSoEinfach
 from song.examples.rnruebermensch import RnRUebermensch
+
+
+def handle_stop_signals(signum, frame):
+    raise KeyboardInterrupt()
+
+signal.signal(signal.SIGTERM, handle_stop_signals)
 
 class PlayerController():
     def __init__(self):
@@ -128,10 +135,6 @@ class PlayerController():
         print("Reset Song")
 
 
-
-controller = PlayerController()
-controller.setSong(RnRUebermensch())
-
 @buttonshim.on_press(buttonshim.BUTTON_A)
 def button_a(button, pressed):
     global controller
@@ -172,6 +175,11 @@ def button_e_hold(button):
     global controller
     controller.setActive(not controller.isActive())
 
+
+controller = PlayerController()
+controller.setSong(RnRUebermensch())
+controller.setActive(False)
+
 while True:
     try:
         if not controller.isActive():
@@ -179,6 +187,7 @@ while True:
             continue
 
         controller.connect(BlueZPopulele())
+        controller.setPaused(False)
 
         if not controller.isActive():
             continue
