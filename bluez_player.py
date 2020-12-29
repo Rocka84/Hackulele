@@ -33,15 +33,15 @@ class PlayerController():
         if self.led_beat:
             buttonshim.set_pixel(0x00, 0x33, 0x33)
         else:
-            buttonshim.set_pixel(0x33, 0x33, 0x00)
+            buttonshim.set_pixel(0x33, 0x00, 0x33)
 
     def setActive(self, value):
         self.active = value
         if not self.active:
-            buttonshim.set_pixel(0x22, 0x00, 0x00)
+            buttonshim.set_pixel(0x00, 0x44, 0x33)
             print("Deactivated")
         else:
-            buttonshim.set_pixel(0x44, 0x00, 0x66)
+            buttonshim.set_pixel(0x00, 0x00, 0x66)
             print("Activated")
 
     def isActive(self):
@@ -74,7 +74,7 @@ class PlayerController():
                 raise KeyboardInterrupt()
             except:
                 print("retry")
-                buttonshim.set_pixel(0x44, 0x00, 0x66)
+                buttonshim.set_pixel(0x00, 0x33, 0x66)
                 time.sleep(1)
 
         if not self.active:
@@ -187,7 +187,7 @@ while True:
             continue
 
         controller.connect(BlueZPopulele())
-        controller.setPaused(False)
+        controller.setPaused(True)
 
         if not controller.isActive():
             continue
@@ -205,6 +205,5 @@ while True:
         print("Connection lost, deactivating")
         controller.setActive(False)
 
-    finally:
-        controller.disconnect()
+controller.disconnect()
 
