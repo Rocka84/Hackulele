@@ -16,7 +16,7 @@ class Player():
       self._populele = populele
 
   def _SetFret(self, string, fret):
-    self._populele.SetPixel(self._populele.NB_COLS - fret, string - 1, self._populele.LED_ON)
+    self._populele.SetFret(string, fret, self._populele.LED_ON)
 
   def _setChord(self, chord):
     self._populele.SetAll(self._populele.LED_OFF)

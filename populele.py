@@ -27,6 +27,9 @@ class Populele(object):
     """
     raise NotImplementedError('Please implement SetPixel')
 
+  def SetFret(self, string, fret, value):
+    self.SetPixel(self.NB_COLS - fret, string - 1, value)
+
   def GetPixel(self, x, y):
     """Get the state of one pixel.
 

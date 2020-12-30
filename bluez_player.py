@@ -6,6 +6,8 @@ import buttonshim
 
 from bluezpopulele import BlueZPopulele
 from player import Player
+
+from song.examples.testsong import TestSong
 from song.examples.allessoeinfach import AllesSoEinfach
 from song.examples.rnruebermensch import RnRUebermensch
 
@@ -24,6 +26,7 @@ class PlayerController():
         self.populele = None
         self.player = None
         self.song = None
+        self.song_id = 0
 
     def beatLED(self, value = None):
         if value is not None:
@@ -55,6 +58,7 @@ class PlayerController():
 
     def setPaused(self, value):
         self.paused = value
+        self.showPauseState()
         if self.paused:
             print("Paused")
         else:
@@ -133,6 +137,26 @@ class PlayerController():
         self.player.reset()
         self.beatLED(True)
         print("Reset Song")
+
+    def showPauseState(self):
+        value = 0xFF if self.paused else 0
+        self.populele.SetFret(1, 9, value)
+        self.populele.SetFret(2, 9, value)
+        self.populele.SetFret(3, 9, value)
+        self.populele.SetFret(4, 9, value)
+        self.populele.SetFret(1, 11, value)
+        self.populele.SetFret(2, 11, value)
+        self.populele.SetFret(3, 11, value)
+        self.populele.SetFret(4, 11, value)
+        self.populele.ShowFrame()
+
+    def loadSongById(self, song_id):
+        if song_id == 2:
+            song = RnRUebermensch()
+        elif song_id == 1:
+            song = AllesSoEinfach()
+        else:
+            song = TestSong()
 
 
 @buttonshim.on_press(buttonshim.BUTTON_A)
