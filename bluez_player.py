@@ -22,18 +22,32 @@ class PlayerController():
         self.active = True
         self.playing = False
         self.paused = True
-        self.led_beat = False
+        self.stroke = 0
         self.populele = None
         self.player = None
         self.song = None
         self.song_id = 0
 
-    def beatLED(self, value = None):
+    def showBeat(self, value = None):
         if value is not None:
-            self.lead_beat = value
+            self.stroke = value
         else:
-            self.led_beat = not self.led_beat
-        if self.led_beat:
+            self.stroke = self.stroke + 1
+            if self.stroke > 4:
+                self.stroke = 1
+
+        if self.stroke == 0 or self.stroke == 1:
+            self.populele.SetFret(4, 14, value)
+        if self.stroke == 2:
+            self.populele.SetFret(3, 14, value)
+        if self.stroke == 3:
+            self.populele.SetFret(2, 14, value)
+        if self.stroke == 4:
+            self.populele.SetFret(1, 14, value)
+
+        self.populele.ShowFrame()
+
+        if self.stroke == 1 or self.stroke == 3:
             buttonshim.set_pixel(0x00, 0x33, 0x33)
         else:
             buttonshim.set_pixel(0x33, 0x00, 0x33)
@@ -112,7 +126,7 @@ class PlayerController():
         else:
             self.player.beat()
             print(self.player.getCurrentChord())
-            self.beatLED()
+            self.showBeat()
             time.sleep(self.player.interval)
 
     def setSong(self, song):
@@ -122,20 +136,20 @@ class PlayerController():
 
     def nextChord(self):
         self.player.nextChord()
-        self.beatLED(True)
+        self.showBeat(0)
         print("Next Chord")
         print(self.player.getCurrentChord())
 
     def prevChord(self):
         self.player.prevChord()
-        self.beatLED(True)
+        self.showBeat(0)
         print("Prev Chord")
         print(self.player.getCurrentChord())
 
     def resetSong(self):
         self.setPaused(True)
         self.player.reset()
-        self.beatLED(True)
+        self.showBeat(0)
         print("Reset Song")
 
     def showPauseState(self):
@@ -150,13 +164,21 @@ class PlayerController():
         self.populele.SetFret(4, 11, value)
         self.populele.ShowFrame()
 
+    def nextSong(self):
+        self.song_id += 1
+        if self.song_id > 2:
+            self.song_id = 0
+        self.setSong(self.loadSongById(self.song_id))
+        print("Load song %i" % self.song_id)
+
+
     def loadSongById(self, song_id):
         if song_id == 2:
-            song = RnRUebermensch()
+            return RnRUebermensch()
         elif song_id == 1:
-            song = AllesSoEinfach()
+            return AllesSoEinfach()
         else:
-            song = TestSong()
+            return TestSong()
 
 
 @buttonshim.on_press(buttonshim.BUTTON_A)
@@ -173,6 +195,11 @@ def button_a_hold(button):
 def button_b(button, pressed):
     global controller
     controller.nextChord()
+
+@buttonshim.on_hold(buttonshim.BUTTON_B, hold_time=2)
+def button_b_hold(button):
+    global controller
+    controller.nextSong()
 
 @buttonshim.on_press(buttonshim.BUTTON_C)
 def button_c(button, pressed):
@@ -202,7 +229,7 @@ def button_e_hold(button):
 
 controller = PlayerController()
 controller.setSong(RnRUebermensch())
-controller.setActive(False)
+# controller.setActive(False)
 
 while True:
     try:
