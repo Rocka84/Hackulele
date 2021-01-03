@@ -28,38 +28,29 @@ class PlayerController():
         self.song = None
         self.song_id = 0
 
-    def showBeat(self, value = None):
-        if value is not None:
+    def showBeat(self, value = -1):
+        if value != -1:
             self.stroke = value
         else:
             self.stroke = self.stroke + 1
             if self.stroke > 4:
                 self.stroke = 1
 
-        if self.stroke == 0 or self.stroke == 1:
-            self.populele.SetFret(4, 14, value)
-        if self.stroke == 2:
-            self.populele.SetFret(3, 14, value)
-        if self.stroke == 3:
-            self.populele.SetFret(2, 14, value)
-        if self.stroke == 4:
-            self.populele.SetFret(1, 14, value)
-
-        self.populele.ShowFrame()
-
         if self.stroke == 1 or self.stroke == 3:
             buttonshim.set_pixel(0x00, 0x33, 0x33)
         else:
             buttonshim.set_pixel(0x33, 0x00, 0x33)
 
+        self.updateInfoFrets()
+
     def setActive(self, value):
         self.active = value
         if not self.active:
             buttonshim.set_pixel(0x00, 0x44, 0x33)
-            print("Deactivated")
+            print("Inactive")
         else:
             buttonshim.set_pixel(0x00, 0x00, 0x66)
-            print("Activated")
+            print("Activate")
 
     def isActive(self):
         return self.active
@@ -71,6 +62,8 @@ class PlayerController():
         return self.playing
 
     def setPaused(self, value):
+        if self.paused and not value:
+            self.leadIn()
         self.paused = value
         self.showPauseState()
         if self.paused:
@@ -106,6 +99,7 @@ class PlayerController():
         buttonshim.set_pixel(0x00, 0x66, 0x00)
         self.setPaused(True)
         self.player.draw()
+        self.updateInfoFrets()
         print("Ready for playback")
         print("First Chord: %s" % self.player.getCurrentChord())
 
@@ -133,6 +127,7 @@ class PlayerController():
         self.song = song
         if self.player is not None:
             self.player.setSong(self.song)
+        self.showBeat(0)
 
     def nextChord(self):
         self.player.nextChord()
@@ -179,6 +174,41 @@ class PlayerController():
             return AllesSoEinfach()
         else:
             return TestSong()
+
+    def leadIn(self):
+        for i in range(4):
+            value = self.populele.LED_ON
+            self.populele.SetFret(1, 13, self.populele.LED_ON)
+            if i > 2:
+                value = self.populele.LED_OFF
+            self.populele.SetFret(2, 13, value)
+            if i > 1:
+                value = self.populele.LED_OFF
+            self.populele.SetFret(3, 13, value)
+            if i > 0:
+                value = self.populele.LED_OFF
+            self.populele.SetFret(4, 13, value)
+            self.populele.ShowFrame()
+            time.sleep(self.player.interval)
+
+    def updateInfoFrets(self):
+        if self.populele is None:
+            return
+
+        if self.stroke == 0 or self.stroke == 1:
+            self.populele.SetFret(4, 14, self.populele.LED_ON)
+        if self.stroke == 2:
+            self.populele.SetFret(3, 14, self.populele.LED_ON)
+        if self.stroke == 3:
+            self.populele.SetFret(2, 14, self.populele.LED_ON)
+        if self.stroke == 4:
+            self.populele.SetFret(1, 14, self.populele.LED_ON)
+
+        if self.paused:
+            self.showPauseState()
+        else:
+            self.populele.ShowFrame()
+
 
 
 @buttonshim.on_press(buttonshim.BUTTON_A)
@@ -229,7 +259,8 @@ def button_e_hold(button):
 
 controller = PlayerController()
 controller.setSong(RnRUebermensch())
-# controller.setActive(False)
+if len(sys.argv) < 2 or sys.argv[1] != "-a": # quick & dirty, getopts is overkill for now
+    controller.setActive(False)
 
 while True:
     try:
@@ -238,7 +269,6 @@ while True:
             continue
 
         controller.connect(BlueZPopulele())
-        controller.setPaused(True)
 
         if not controller.isActive():
             continue

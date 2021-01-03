@@ -20,9 +20,10 @@ class Song(object):
         self.current_duration = self.getChord(self.current_chord).getDuration()
 
     def prevChord(self):
-        self.current_chord -= 1
-        if self.current_chord < 0:
-            self.current_chord = len(self.chords) - 1
+        if self.current_duration == self.getChord(self.current_chord).getDuration():
+            self.current_chord -= 1
+            if self.current_chord < 0:
+                self.current_chord = len(self.chords) - 1
         self.current_duration = self.getChord(self.current_chord).getDuration()
 
     def reset(self):
