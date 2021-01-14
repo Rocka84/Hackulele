@@ -1,38 +1,49 @@
+from song.element import Element
 
 class Song(object):
-    def __init__(self):
+    def __init__(self, chordrepo):
         self.bpm = 100
-        self.current_chord = 0
+        self.current_element = 0
+        self.chordrepo = chordrepo
+        self.name = "unknown"
 
     def getBPM(self):
         return self.bpm
 
-    def getChord(self, index):
-        return self.chords[index]
+    def getName(self):
+        return self.name
+
+    def getCurrentElement(self):
+        return self.elements[self.current_element]
 
     def getCurrentChord(self):
-        return self.chords[self.current_chord]
+        return self.getCurrentElement().getChord()
 
-    def nextChord(self):
-        self.current_chord += 1
-        if self.current_chord == len(self.chords):
-            self.current_chord = 0
-        self.current_duration = self.getChord(self.current_chord).getDuration()
+    def nextElement(self):
+        self.current_element += 1
+        if self.current_element == len(self.elements):
+            self.current_element = 0
+        self.current_duration = self.getCurrentElement().getDuration()
 
-    def prevChord(self):
-        if self.current_duration == self.getChord(self.current_chord).getDuration():
-            self.current_chord -= 1
-            if self.current_chord < 0:
-                self.current_chord = len(self.chords) - 1
-        self.current_duration = self.getChord(self.current_chord).getDuration()
+    def prevElement(self):
+        if self.current_duration == self.getCurrentElement().getDuration():
+            self.current_element -= 1
+            if self.current_element < 0:
+                self.current_element = len(self.elements) - 1
+        self.current_duration = self.getCurrentElement().getDuration()
 
     def reset(self):
-        self.current_chord = 0
-        self.current_duration = self.getChord(self.current_chord).getDuration()
+        self.current_element = 0
+        self.current_duration = self.getCurrentElement().getDuration()
 
     def beat(self):
         if self.current_duration == 0:
-            self.nextChord()
+            self.nextElement()
         self.current_duration -= 1
 
+    def _createElement(self, chord_name, duration):
+        return Element(
+                self.chordrepo.getChord(chord_name),
+                duration
+            )
 

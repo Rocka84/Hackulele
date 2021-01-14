@@ -7,10 +7,11 @@ import buttonshim
 from bluezpopulele import BlueZPopulele
 from player import Player
 
+from chordrepo.example import ExampleChordRepo
+
 from song.examples.testsong import TestSong
 from song.examples.allessoeinfach import AllesSoEinfach
 from song.examples.rnruebermensch import RnRUebermensch
-
 
 def handle_stop_signals(signum, frame):
     raise KeyboardInterrupt()
@@ -25,8 +26,9 @@ class PlayerController():
         self.stroke = 0
         self.populele = None
         self.player = None
-        self.song = None
+        self.chord_repo = ExampleChordRepo()
         self.song_id = 0
+        self.song = self.loadSongById(self.song_id)
 
     def showBeat(self, value = -1):
         if value != -1:
@@ -164,16 +166,16 @@ class PlayerController():
         if self.song_id > 2:
             self.song_id = 0
         self.setSong(self.loadSongById(self.song_id))
-        print("Load song %i" % self.song_id)
+        print("Load song %i: %s" % (self.song_id, self.song.getName()) )
 
 
     def loadSongById(self, song_id):
         if song_id == 2:
-            return RnRUebermensch()
+            return RnRUebermensch(self.chord_repo)
         elif song_id == 1:
-            return AllesSoEinfach()
+            return AllesSoEinfach(self.chord_repo)
         else:
-            return TestSong()
+            return TestSong(self.chord_repo)
 
     def leadIn(self):
         for i in range(4):
@@ -256,9 +258,8 @@ def button_e_hold(button):
     global controller
     controller.setActive(not controller.isActive())
 
-
 controller = PlayerController()
-controller.setSong(RnRUebermensch())
+controller.nextSong()
 if len(sys.argv) < 2 or sys.argv[1] != "-a": # quick & dirty, getopts is overkill for now
     controller.setActive(False)
 

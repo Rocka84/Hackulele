@@ -1,31 +1,62 @@
 from song import Song
-from song.chord import Chord
 
 class AllesSoEinfach(Song):
-    def __init__(self):
-        super(AllesSoEinfach, self)
-        self.chords = [
-                Chord("Am", [ [4,2] ], 4),
-                Chord("Em", [ [1,2], [2,3], [3,4] ], 4),
-                Chord("F", [ [2,1], [4,2] ], 4),
-                Chord("G", [ [1,2], [2,3], [3,2] ], 4),
+    def __init__(self, chord_repo):
+        super(AllesSoEinfach, self).__init__(chord_repo)
 
-                Chord("Am", [ [4,2] ], 4),
-                Chord("Em", [ [1,2], [2,3], [3,4] ], 4),
-                Chord("F", [ [2,1], [4,2] ], 4),
-                Chord("G", [ [1,2], [2,3], [3,2] ], 4),
+        self.name = "Alles so einfach"
+        self.bpm = 140
+        self.elements = [
+                # Intro
+                self._createElement("C", 4),
+                self._createElement("Am", 4),
+                self._createElement("Dm", 4),
+                self._createElement("G", 4),
 
-                Chord("F", [ [2,1], [4,2] ], 4),
-                Chord("G", [ [1,2], [2,3], [3,2] ], 4),
-                Chord("C", [ [1,3] ], 4),
-                Chord("E", [ [1,2], [2,4], [3,4], [4,4] ], 4),
+                self._createElement("C", 4),
+                self._createElement("Am", 4),
+                self._createElement("Dm", 4),
+                self._createElement("G", 4),
 
-                Chord("F", [ [2,1], [4,2] ], 8),
-                Chord("G", [ [1,2], [2,3], [3,2] ], 4),
+                # Strophe
+                self._createElement("Am", 4),
+                self._createElement("Em", 4),
+                self._createElement("F", 4),
+                self._createElement("G", 4),
+
+                self._createElement("Am", 4),
+                self._createElement("Em", 4),
+                self._createElement("F", 4),
+                self._createElement("G", 4),
+
+                self._createElement("F", 4),
+                self._createElement("G", 4),
+                self._createElement("C", 4),
+                self._createElement("E", 4),
+
+                self._createElement("F", 8),
+                self._createElement("G", 4),
+
+
+                self._createElement("G", 1),
+                # refrain
+                self._createElement("0", 3),
+
+                self._createElement("C", 4),
+                self._createElement("Em", 4),
+                self._createElement("B", 4),
+                self._createElement("F", 4),
+
+                self._createElement("C", 4),
+                self._createElement("Em", 4),
+                self._createElement("B", 4),
+                self._createElement("F", 4),
+
+                self._createElement("C", 8),
+                self._createElement("Am", 8),
+                self._createElement("F", 8),
+                self._createElement("G", 8),
               ]
-
-        self.bpm = 100
-        self.current_chord = 0
-        self.current_duration = self.getChord(0).getDuration()
+        self.reset()
 
 

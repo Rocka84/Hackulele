@@ -1,17 +1,16 @@
 from song import Song
-from song.chord import Chord
 
 class RnRUebermensch(Song):
-    def __init__(self):
-        super(RnRUebermensch, self)
-        self.chords = [
-                Chord("Am7", [ [4,2], [1,3] ], 4),
-                Chord("Em", [ [1,2], [2,3], [3,4] ], 4),
-                Chord("F", [ [2,1], [4,2] ], 4),
-                Chord("G", [ [1,2], [2,3], [3,2] ], 4),
-              ]
+    def __init__(self, chord_repo):
+        super(RnRUebermensch, self).__init__(chord_repo)
 
-        self.bpm = 100
-        self.current_chord = 0
-        self.current_duration = self.getChord(0).getDuration()
+        self.name = "R'n'R Uebermensch"
+        self.bpm = 130
+        self.elements = [
+                self._createElement("Am7", 4),
+                self._createElement("Em", 4),
+                self._createElement("F", 4),
+                self._createElement("G", 4),
+              ]
+        self.reset()
 

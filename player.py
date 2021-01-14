@@ -2,15 +2,16 @@ from __future__ import print_function
 import time
 
 from song import Song
-from song.examples.allessoeinfach import AllesSoEinfach
 
 class Player():
   """Animator for a Song."""
 
   def __init__(self, populele, song = None):
     self._populele = populele
-    self.song = AllesSoEinfach() if song == None else song
-    self.interval = 60.0 / self.song.getBPM()
+    self.interval = 1
+    self.song = None
+    if song is not None:
+        self.setSong(song)
 
   def setPopulele(self, populele):
       self._populele = populele
@@ -20,19 +21,24 @@ class Player():
 
   def _setChord(self, chord):
     self._populele.SetAll(self._populele.LED_OFF)
-    for fret in chord.getFrets():
-        self._SetFret(fret[0], fret[1])
+    frets = chord.getFrets()
+    for string in range(4):
+        if frets[string][0] > 0:
+            self._SetFret(string + 1, frets[string][0])
 
   def nextChord(self):
-      self.song.nextChord()
+      self.song.nextElement()
       self.draw()
 
   def prevChord(self):
-      self.song.prevChord()
+      self.song.prevElement()
       self.draw()
 
   def setSong(self, song):
     self.song = song
+    self.interval = 60.0 / self.song.getBPM()
+    print("new interval")
+    print(self.interval)
     self.reset()
 
   def reset(self):
